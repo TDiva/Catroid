@@ -1,4 +1,5 @@
-/**
+<?xml version="1.0" encoding="utf-8"?>
+<!--
  *  Catroid: An on-device visual programming system for Android devices
  *  Copyright (C) 2010-2013 The Catrobat Team
  *  (<http://developer.catrobat.org/credits>)
@@ -19,23 +20,19 @@
  *  
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-package org.catrobat.catroid.utils;
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="ring"
+    android:useLevel="false" >
 
-import android.util.Log;
+    <size
+        android:height="65dip"
+        android:width="65dip" />
 
-public class UtilToken {
-	private static final String LOG_TAG = UtilToken.class.getSimpleName();
+    <gradient
+        android:endColor="#CCCCFF"
+        android:startColor="#AAAADD"
+        android:type="sweep"
+        android:useLevel="false" />
 
-	public static String calculateToken(String username, String password) {
-
-		String md5Username = Utils.md5Checksum(username.toLowerCase()).toLowerCase();
-		String md5Password = Utils.md5Checksum(password).toLowerCase();
-
-		String token = Utils.md5Checksum(md5Username + ":" + md5Password);
-
-		Log.i(LOG_TAG, "token calculated: " + token);
-		return token.toLowerCase();
-	}
-
-}
+</shape>
