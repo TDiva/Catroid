@@ -24,6 +24,7 @@ package org.catrobat.catroid.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.catrobat.catroid.R;
 import org.catrobat.catroid.common.Constants;
@@ -56,6 +57,7 @@ public class StatusBarNotificationManager {
 	public ArrayList<String> downloadProjectZipFileString;
 
 	public static final StatusBarNotificationManager INSTANCE = new StatusBarNotificationManager();
+	public static final String EXTRA_PROJECT_NAME = "projectName";
 
 	@SuppressLint("UseSparseArrays")
 	private StatusBarNotificationManager() {
@@ -166,8 +168,9 @@ public class StatusBarNotificationManager {
 
 		Intent intent = new Intent(context, MainMenuActivity.class);
 		intent.setAction(Intent.ACTION_MAIN);
-		intent = intent.setFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+		intent = intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.putExtra(EXTRA_PROJECT_NAME, name);
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 		NotificationData data = new NotificationData(pendingIntent, context, name, notificationTitle,
 				(MainMenuActivity) context);
 		downloadNotificationDataMap.put(downloadId, data);
@@ -227,14 +230,38 @@ public class StatusBarNotificationManager {
 		downloadNotificationManager.notify(notificationCode, downloadNotification);
 	}
 
-	public void displayDialogs(MainMenuActivity activity) {
+	public boolean displayDialogs(MainMenuActivity activity) {
+		boolean dialogsAreShown = false;
 		for (int i = 0; i < downloadProjectName.size() && i < downloadProjectZipFileString.size(); i++) {
 			OverwriteRenameDialog renameDialog = new OverwriteRenameDialog(activity, downloadProjectName.get(i),
 					downloadProjectZipFileString.get(i));
 			renameDialog.show(activity.getSupportFragmentManager(), OverwriteRenameDialog.DIALOG_FRAGMENT_TAG);
+			dialogsAreShown = true;
 		}
 		downloadProjectName.clear();
 		downloadProjectZipFileString.clear();
+
+		return dialogsAreShown;
+	}
+
+	public void projectRenamed(Context context, String oldProjectName, String newProjectName, int notificationCode) {
+		for (Map.Entry<Integer, NotificationData> entry : downloadNotificationDataMap.entrySet()) {
+			if (entry.getValue().getName().compareTo(oldProjectName) == 0) {
+				entry.getValue().setName(newProjectName);
+
+				Intent intent = new Intent(context, MainMenuActivity.class);
+				intent.setAction(Intent.ACTION_MAIN);
+				intent = intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				intent.putExtra(EXTRA_PROJECT_NAME, newProjectName);
+				PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+				NotificationManager downloadNotificationManager = (NotificationManager) context
+						.getSystemService(Activity.NOTIFICATION_SERVICE);
+				downloadNotificationManager.notify(notificationCode, downloadNotification);
+
+				break;
+			}
+		}
 	}
 
 }
