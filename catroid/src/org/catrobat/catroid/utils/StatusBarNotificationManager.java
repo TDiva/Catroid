@@ -175,17 +175,12 @@ public class StatusBarNotificationManager {
 				(MainMenuActivity) context);
 		downloadNotificationDataMap.put(downloadId, data);
 
-		if (newDownloadNotification) {
-			downloadNotification = new Notification(R.drawable.ic_stat_download_notification, notificationTitle,
-					System.currentTimeMillis());
-			downloadNotification.flags = Notification.FLAG_AUTO_CANCEL;
-			downloadNotification.number += 1;
-			downloadNotification.setLatestEventInfo(context, notificationTitle, name, pendingIntent);
-			notificationManager.notify(notificationCode, downloadNotification);
-		} else {
-			downloadNotification.number += 1;
-			notificationManager.notify(notificationCode, downloadNotification);
-		}
+		downloadNotification = new Notification(R.drawable.ic_stat_download_notification, notificationTitle,
+				System.currentTimeMillis());
+		downloadNotification.flags = Notification.FLAG_ONGOING_EVENT;
+		downloadNotification.number += 1;
+		downloadNotification.setLatestEventInfo(context, notificationTitle, name, null);
+		notificationManager.notify(notificationCode, downloadNotification);
 
 		return downloadId;
 	}
@@ -222,8 +217,11 @@ public class StatusBarNotificationManager {
 
 		if (finished) {
 			downloadNotification.number--;
+			downloadNotification.flags = Notification.FLAG_AUTO_CANCEL;
+			downloadNotification.setLatestEventInfo(context, notificationTitle, message, pendingIntent);
+		} else {
+			downloadNotification.setLatestEventInfo(context, notificationTitle, message, null);
 		}
-		downloadNotification.setLatestEventInfo(context, notificationTitle, message, pendingIntent);
 
 		NotificationManager downloadNotificationManager = (NotificationManager) context
 				.getSystemService(Activity.NOTIFICATION_SERVICE);
