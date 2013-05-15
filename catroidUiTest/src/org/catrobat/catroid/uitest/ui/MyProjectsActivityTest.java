@@ -209,20 +209,32 @@ public class MyProjectsActivityTest extends ActivityInstrumentationTestCase2<Mai
 		Project activeProject = ProjectManager.INSTANCE.getCurrentProject();
 		ArrayList<LookData> catroidLookList = activeProject.getSpriteList().get(1).getLookDataList();
 
-		String defaultSpriteName = solo.getString(R.string.default_project_sprites_pocketcode_name);
+		String defaultSpriteName = solo.getString(R.string.default_project_sprites_mole_name);
 		String delete = solo.getString(R.string.delete);
 		String yes = solo.getString(R.string.yes);
 
 		solo.clickOnButton(solo.getString(R.string.main_menu_programs));
 		solo.waitForActivity(MyProjectsActivity.class.getSimpleName());
 		solo.waitForFragmentById(R.id.fragment_projects_list);
-		UiTestUtils.clickOnTextInList(solo, solo.getString(R.string.default_project_name));
-		solo.waitForText(defaultSpriteName);
-		solo.clickLongOnText(defaultSpriteName);
-		solo.waitForText(delete);
-		solo.clickOnText(delete);
-		solo.waitForText(yes);
-		solo.clickOnText(yes);
+		for (int i = 1; i <= 4; i++) {
+			UiTestUtils.clickOnTextInList(solo, solo.getString(R.string.default_project_name));
+			solo.waitForText(defaultSpriteName + " " + i);
+			solo.clickLongOnText(defaultSpriteName + " " + i);
+			solo.waitForText(delete);
+			solo.clickOnText(delete);
+			solo.waitForText(yes);
+			solo.clickOnText(yes);
+
+			if (i != 4) {
+				File imageFile;
+
+				for (LookData currentLookData : catroidLookList) {
+					imageFile = new File(currentLookData.getAbsolutePath());
+					assertTrue("Imagefile should not be deleted", imageFile.exists());
+				}
+			}
+		}
+
 		solo.sleep(1000);
 
 		File imageFile;
@@ -272,7 +284,7 @@ public class MyProjectsActivityTest extends ActivityInstrumentationTestCase2<Mai
 		solo.goBack();
 		solo.clickOnText(solo.getString(R.string.main_menu_continue));
 		List<Sprite> spriteList = ProjectManager.getInstance().getCurrentProject().getSpriteList();
-		assertTrue("Default Project should not be overwritten", spriteList.size() == 3);
+		assertTrue("Default Project should not be overwritten", spriteList.size() == 6);
 	}
 
 	public void testDeleteStandardProject() {
@@ -335,7 +347,7 @@ public class MyProjectsActivityTest extends ActivityInstrumentationTestCase2<Mai
 				UiTestUtils.clickOnTextInList(solo, standardProjectName));
 
 		List<Sprite> spriteList = ProjectManager.getInstance().getCurrentProject().getSpriteList();
-		assertTrue("Standard Project should be restored", spriteList.size() == 2);
+		assertTrue("Standard Project should be restored", spriteList.size() == 5);
 	}
 
 	public void testProjectsAndImagesVisible() {
